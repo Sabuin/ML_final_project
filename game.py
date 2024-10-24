@@ -1,15 +1,22 @@
 import pygame
+
+import config
 from sprites import *
 from config import *
 import sys
 import time
+
+def max(val1, val2):
+   if(val1 > val2):
+      return val1
+   else:
+      return val1
 
 class Game:
    def __init__(self):
       pygame.init()
       self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
       self.clock = pygame.time.Clock()
-      self.running = True
 
    def createTilemap(self):
       for i, row in enumerate(tilemap):
@@ -32,29 +39,58 @@ class Game:
 
       self.createTilemap()
 
-   def events(self):
-      #Game loop events
-      for event in pygame.event.get():
-         if event.type == pygame.QUIT:
-            self.playing = False
-            self.running = False 
-         
-         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-               if self.player.facing == "up":
-                  angle = 90
-               elif self.player.facing == "down":
-                  angle = 270
-               elif self.player.facing == "left":
-                  angle = 180
-               elif self.player.facing == "right":
-                  angle = 0
-               projectile = Attack(self,self.player.rect.x, self.player.rect.y, angle)
-               self.projectiles.add(projectile)
-   
+      self.score = 0
+
+   def agent_move(self, action):
+      if action[0]:
+         self.player.x_change -= PLAYER_SPEED
+         self.player.facing = 'left'
+
+      if action[1]:
+         self.player.x_change += PLAYER_SPEED
+         self.player.facing = 'right'
+
+      if action[2]:
+         self.player.y_change -= PLAYER_SPEED  # in pygame, y axis starts at the top at 0.
+         self.player.facing = 'up'
+
+      if action[3]:
+         self.player.y_change += PLAYER_SPEED
+         self.player.facing = 'down'
+
+      if action[4]:
+         if self.player.facing == "up":
+            angle = 90
+         elif self.player.facing == "down":
+            angle = 270
+         elif self.player.facing == "left":
+            angle = 180
+         elif self.player.facing == "right":
+            angle = 0
+
+         projectile = Attack(self, self.player.rect.x, self.player.rect.y, angle)
+         self.projectiles.add(projectile)
+
+      # Update player position
+      self.player.rect.x += self.player.x_change
+      self.player.rect.y += self.player.y_change
+
 
    def update(self):
-      self.all_sprites.update()
+      reward = 0
+      self.player.update()
+      self.enemy.update()
+
+      for bullet in self.projectiles:
+         value = bullet.update()
+         if(value != None):
+            reward += bullet.update()
+
+      if(reward == 0):
+         reward = agent_config.IDLE_PENALTY
+
+      return reward
+
 
    def draw(self):
       self.screen.fill(BLACK)
@@ -62,29 +98,31 @@ class Game:
       self.clock.tick(FPS)
       pygame.display.update()
 
-   def main(self):
 
-      #game loop 
-      while self.playing:
-         self.events()
-         self.update()
-         self.draw()
 
-      self.running = False
+   def events(self, action):
+      #Game loop events
+      for event in pygame.event.get():
+         if event.type == pygame.QUIT:
+            self.playing = False
 
-   def game_over(self):
-      pass
+      reward = self.update()
+      self.draw()
 
-   def intro_screen(self):
-      pass
+      self.agent_move(action)
+
+      if(self.clock.get_time() > (agent_config.DURATION_MOD * max(1, config.ENEMY_HP - self.enemy.hp))):
+         self.playing = False
+         reward = -self.clock.get_time()
+
+
+      return reward, not self.playing
 
 
 g = Game()
-g.intro_screen()
 g.new()
-while g.running:
-   g.main()
-   g.game_over()
 
-pygame.quit()
-sys.exit()
+
+
+# pygame.quit()
+# sys.exit()

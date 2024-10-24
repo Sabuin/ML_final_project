@@ -1,4 +1,6 @@
 import pygame
+
+import agent_config
 from config import *
 import math
 import random
@@ -28,9 +30,11 @@ class Player(pygame.sprite.Sprite):
 
         self.facing = 'down'
 
+        self.hp = PLAYER_HP
+
     def update(self):
         self.movement()
-        self.collide_enemies()
+        #self.collide_enemies()
 
         self.rect.x += self.x_change
         self.collide_blocks('x')
@@ -43,22 +47,7 @@ class Player(pygame.sprite.Sprite):
         self.y_change = 0
 
     def movement(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]: #take away from the x axis
-            self.x_change -= PLAYER_SPEED
-            self.facing = 'left'
-
-        if keys[pygame.K_RIGHT]:
-            self.x_change += PLAYER_SPEED
-            self.facing = 'right'
-
-        if keys[pygame.K_UP]:
-            self.y_change -= PLAYER_SPEED #in pygame, y axis starts at the top at 0.
-            self.facing = 'up'
-
-        if keys[pygame.K_DOWN]:
-            self.y_change += PLAYER_SPEED
-            self.facing = 'down'
+        pass
 
     def collide_blocks(self,direction):
         if direction == "x":
@@ -77,12 +66,20 @@ class Player(pygame.sprite.Sprite):
                 if self.y_change < 0:
                     self.rect.y = hits[0].rect.bottom
     
-    def collide_enemies(self):
-       hits = pygame.sprite.spritecollide(self,self.game.enemies,False)
-       if hits:
-           self.kill()
-           self.game.playing = False
+    # def collide_enemies(self):
+    #    hits = pygame.sprite.spritecollide(self,self.game.enemies,False)
+    #    if hits:
+    #        self.kill()
+    #        self.game.playing = False
 
+    def take_damage(self, damage):
+        self.hp -= damage
+        agent_config.SCORE += agent_config.PLAYER_HIT
+
+        if self.hp <= 0:
+            agent_config.SCORE += agent_config.PLAYER_KILLED
+            self.kill()
+            self.game.playing = False
 
 class Block(pygame.sprite.Sprite):
     def __init__(self,game,x,y):
@@ -110,8 +107,11 @@ class Enemy(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.rect = pygame.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
-        self.image = pygame.Surface((TILESIZE, TILESIZE))
+        self.image = pygame.Surface((TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE))
         self.image.fill(GREEN)
+
+        self.x = x
+        self.y = y
 
         self.x_change = 0
         self.y_change = 0
@@ -198,6 +198,9 @@ class Enemy(pygame.sprite.Sprite):
         if(self.hp <= 0):
             self.kill()
             self.game.playing = False
+            return agent_config.MONSTER_KILLED
+        else:
+            return agent_config.MONSTER_HIT
            
 class Attack(pygame.sprite.Sprite):
     def __init__(self, game, x, y, angle):
@@ -227,15 +230,20 @@ class Attack(pygame.sprite.Sprite):
     def update(self):
         self.rect.x += self.dx
         self.rect.y += self.dy
-        self.collide()
+        return self.collide()
+
 
     def collide(self):
         hits = pygame.sprite.spritecollide(self, self.game.enemies, False)
+        reward = 0
         if hits:
             # Handle what happens when the projectile hits an enemy
             for enemy in hits:
                 self.kill()
-                enemy.take_damage(DAMAGE_VAL)  # Example action: remove the enemy
+                reward += enemy.take_damage(DAMAGE_VAL)  # Example action: remove the enemy
+
+        return reward
+
 
 
 
