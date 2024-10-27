@@ -41,6 +41,8 @@ class Game:
 
       self.score = 0
 
+      self.fireTime = 0
+
    def agent_move(self, action):
       if action[0]:
          self.player.x_change -= PLAYER_SPEED
@@ -68,8 +70,12 @@ class Game:
          elif self.player.facing == "right":
             angle = 0
 
-         projectile = Attack(self, self.player.rect.x, self.player.rect.y, angle)
-         self.projectiles.add(projectile)
+         if(self.fireTime < 0):
+            projectile = Attack(self, self.player.rect.x, self.player.rect.y, angle)
+            self.projectiles.add(projectile)
+            self.fireTime += config.PROJECTILE_INTERVAL
+      self.fireTime -= self.clock.get_time()
+
 
       # Update player position
       self.player.rect.x += self.player.x_change

@@ -1,5 +1,4 @@
 import pygame
-
 import agent_config
 from config import *
 import math
@@ -246,4 +245,11 @@ class Attack(pygame.sprite.Sprite):
 
 
 
+'''
+Shawcode. “Pygame RPG Tutorial #1 - Pygame Tutorial.” 
+YouTube, 21 Feb. 2021, youtu.be/crUF36OkGDw?si=g54rCG25-wNusCUJ. 
+Accessed 27 Oct. 2024.
+
+Note: resource used to learn how to use pygame, but this is an original file made by us. 
+'''
 

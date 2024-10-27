@@ -143,3 +143,11 @@ def train():
 
 if __name__ == "__main__":
     train()
+
+'''
+freeCodeCamp.org. “Python + PyTorch + Pygame Reinforcement Learning –
+Train an AI to Play Snake.” YouTube, 25 Apr. 2022, youtu.be/L8ypSXwyBds?si=94UOpnWVmBMUwggG.
+Accessed 12 Sep. 2024.
+
+AGENT FILE WAS MODIFIED
+'''

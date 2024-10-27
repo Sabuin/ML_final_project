@@ -1,3 +1,10 @@
+'''
+freeCodeCamp.org. “Python + PyTorch + Pygame Reinforcement Learning –
+Train an AI to Play Snake.” YouTube, 25 Apr. 2022, youtu.be/L8ypSXwyBds?si=94UOpnWVmBMUwggG.
+Accessed 12 Sep. 2024.
+'''
+
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
