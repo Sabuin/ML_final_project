@@ -1,5 +1,6 @@
 import pygame
 
+import agent_config
 import config
 from sprites import *
 from config import *
@@ -42,6 +43,7 @@ class Game:
       self.score = 0
 
       self.fireTime = 0
+      self.duration = 0
 
    def agent_move(self, action):
       if action[0]:
@@ -116,10 +118,11 @@ class Game:
       self.draw()
 
       self.agent_move(action)
+      self.duration += self.clock.get_time()
 
-      if(self.clock.get_time() > (agent_config.DURATION_MOD * max(1, config.ENEMY_HP - self.enemy.hp))):
+      if(self.duration > (agent_config.DURATION_MOD * max(1, config.ENEMY_HP - self.enemy.hp))):
          self.playing = False
-         reward = -self.clock.get_time()
+         reward = agent_config.TIMEOUT_PENALTY
 
 
       return reward, not self.playing
