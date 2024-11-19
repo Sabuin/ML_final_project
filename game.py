@@ -17,7 +17,8 @@ class Game:
    def __init__(self):
       pygame.init()
       self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-      self.clock = pygame.time.Clock()
+      #self.clock = pygame.time.Clock()
+
 
    def createTilemap(self):
       for i, row in enumerate(tilemap):
@@ -76,8 +77,8 @@ class Game:
             projectile = Attack(self, self.player.rect.x, self.player.rect.y, angle)
             self.projectiles.add(projectile)
             self.fireTime += config.PROJECTILE_INTERVAL
-      self.fireTime -= self.clock.get_time()
-
+      # self.fireTime -= self.clock.get_time()
+      self.fireTime -= 1
 
       # Update player position
       self.player.rect.x += self.player.x_change
@@ -85,6 +86,16 @@ class Game:
 
 
    def update(self):
+      '''
+      Rewards we have:
+      * If monster hit: +1
+      * If monster kill: +2
+      *
+      * If idle: -.0001
+      * If shoots in right direction: +.5
+
+      :return:
+      '''
       reward = 0
       self.player.update()
       self.enemy.update()
@@ -92,7 +103,15 @@ class Game:
       for bullet in self.projectiles:
          value = bullet.update()
          if(value != None):
-            reward += bullet.update()
+            reward += value
+         # if(bullet.angle == 90 and self.enemy.y < self.player.y):
+         #    reward += agent_config.NEAR_HIT
+         # elif(bullet.angle == 0 and self.enemy.x > self.player.x):
+         #    reward += agent_config.NEAR_HIT
+         # elif(bullet.angle == 180 and self.enemy.y > self.player.y):
+         #    reward += agent_config.NEAR_HIT
+         # elif(bullet.angle == 270 and self.enemy.x < self.player.x):
+         #    reward += agent_config.NEAR_HIT
 
       if(reward == 0):
          reward = agent_config.IDLE_PENALTY
@@ -103,9 +122,8 @@ class Game:
    def draw(self):
       self.screen.fill(BLACK)
       self.all_sprites.draw(self.screen) #drawing the sprites in window
-      self.clock.tick(FPS)
+      #self.clock.tick(FPS)
       pygame.display.update()
-
 
 
    def events(self, action):
@@ -118,11 +136,17 @@ class Game:
       self.draw()
 
       self.agent_move(action)
-      self.duration += self.clock.get_time()
+      # self.duration += self.clock.get_time()
+      self.duration += 1
 
       if(self.duration > (agent_config.DURATION_MOD * max(1, config.ENEMY_HP - self.enemy.hp))):
          self.playing = False
          reward = agent_config.TIMEOUT_PENALTY
+
+      for bullet in self.projectiles:
+         if(bullet.x > WIN_WIDTH or bullet.x < 0 or bullet.y > WIN_HEIGHT or bullet.y < 0):
+            bullet.kill()
+
 
 
       return reward, not self.playing

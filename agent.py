@@ -1,8 +1,11 @@
+import config
 import game
 import agent_config
 import torch #pytorch
 import random
 import numpy as np #numpy
+
+from config import WIN_HEIGHT, WIN_WIDTH
 from model import Linear_QNet, QTrainer
 from collections import deque #data structure to store memory
 import matplotlib.pyplot as plot
@@ -21,52 +24,96 @@ class Agent:
         '''
 
         Facing up/down/left/right
+        willHit True/False
         Monster up/down/left/right
+        nearbyWalls up/down/left/right
         '''
+
+        #configs
+        facing = True #4
+        willHit = True #1
+        relativeMonsterPos = True #4
+        nearbyWalls = True #4
 
         state = []
 
-        #player facings
-        if(g.player.facing == "up"):
-            state.append(1)
-        else:
-            state.append(0)
+        # player facings
+        if(facing):
+            if(g.player.facing == "up"):
+                state.append(1)
+            else:
+                state.append(0)
 
-        if (g.player.facing == "down"):
-            state.append(1)
-        else:
-            state.append(0)
+            if (g.player.facing == "down"):
+                state.append(1)
+            else:
+                state.append(0)
 
-        if (g.player.facing == "left"):
-            state.append(1)
-        else:
-            state.append(0)
+            if (g.player.facing == "left"):
+                state.append(1)
+            else:
+                state.append(0)
 
-        if (g.player.facing == "right"):
-            state.append(1)
-        else:
-            state.append(0)
+            if (g.player.facing == "right"):
+                state.append(1)
+            else:
+                state.append(0)
+
+        if(willHit):
+            inLineX = (g.enemy.x <= g.player.x <= g.enemy.x + config.ENEMY_SIZE)
+            inLineY = (g.enemy.y <= g.player.y <= g.enemy.y + config.ENEMY_SIZE)
+            if((g.player.facing == "up" and inLineX and g.enemy.y < g.player.y) or
+               (g.player.facing == "down" and inLineX and g.enemy.y > g.player.y) or
+               (g.player.facing == "right" and inLineY and g.enemy.x > g.player.x) or
+               (g.player.facing == "left" and inLineY and g.enemy.x < g.player.x)):
+                state.append(1)
+            else:
+                state.append(0)
+
 
         #state relative monster position
-        if(g.player.y > g.enemy.y):
-            state.append(1)
-        else:
-            state.append(0)
+        if(relativeMonsterPos):
+            if(g.player.y > g.enemy.y):
+                state.append(1)
+            else:
+                state.append(0)
 
-        if(g.player.y < g.enemy.y):
-            state.append(1)
-        else:
-            state.append(0)
+            if(g.player.y < g.enemy.y):
+                state.append(1)
+            else:
+                state.append(0)
 
-        if(g.player.x > g.enemy.x):
-            state.append(1)
-        else:
-            state.append(0)
+            if(g.player.x > g.enemy.x):
+                state.append(1)
+            else:
+                state.append(0)
 
-        if (g.player.x < g.enemy.x):
-            state.append(1)
-        else:
-            state.append(0)
+            if (g.player.x < g.enemy.x):
+                state.append(1)
+            else:
+                state.append(0)
+
+        margin = 10
+        if(nearbyWalls):
+            if(g.player.y < margin):
+                state.append(1)
+            else:
+                state.append(0)
+
+            if(g.player.y > WIN_HEIGHT - margin):
+                state.append(1)
+            else:
+                state.append(0)
+
+            if(g.player.x < margin):
+                state.append(1)
+            else:
+                state.append(0)
+
+            if(g.player.x > WIN_WIDTH - margin):
+                state.append(1)
+            else:
+                state.append(0)
 
         return np.array(state, dtype=int)
 
@@ -102,6 +149,12 @@ class Agent:
 
         return final_move
 
+def plotGraph(yAxis):
+    xAxis = range(len(yAxis))
+    plot.scatter(xAxis, yAxis)
+    plot.show()
+
+
 def train():
     plot_scores = []
     plot_mean_scores = []
@@ -112,10 +165,14 @@ def train():
     g.new()
 
     score = 0
-    while True:
+    i = 0
+    action_count = 0
+
+    while(i < 100): #DON'T FORGET TO CHANGE
 
         state_old = agent.get_state(g)
         final_move = agent.get_action(state_old)
+        action_count += 1
         reward, done = g.events(final_move)
         state_new = agent.get_state(g)
         agent.train_short_memory(state_old, final_move, reward, state_new, done)
@@ -124,22 +181,24 @@ def train():
         score += reward
 
         if done:
+            i+=1
             g.new()
             agent.n_games += 1
             agent.train_long_memory()
 
-            print('Game', agent.n_games, 'Score:', score)
-
+           # print('Game', agent.n_games, 'Score:', score)
+            print ("" + str(score) + ", " + str(action_count) + " actions")
 
             plot_scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_games
             plot_mean_scores.append(mean_score)
-            plot.plot(plot_scores)
-
-            plot.show()
+            plotGraph(plot_scores)
 
             score = 0
+            action_count = 0
+
+
 
 if __name__ == "__main__":
     train()
