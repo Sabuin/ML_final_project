@@ -16,7 +16,7 @@ class Agent:
         self.epsilon = 0  # randomness
         self.gamma = 0.9  # discount rate
         self.memory = deque(maxlen=agent_config.MAX_MEMORY)
-        self.model = Linear_QNet(agent_config.STATE_COUNT, 256, 5)  # input size, hidden size, output size
+        self.model = Linear_QNet(agent_config.STATE_COUNT, 128, 5)  # input size, hidden size, output size
         self.trainer = QTrainer(self.model, lr=agent_config.LR, gamma=self.gamma)
 
 
@@ -31,9 +31,11 @@ class Agent:
 
         #configs
         facing = True #4
-        willHit = True #1
-        relativeMonsterPos = True #4
-        nearbyWalls = True #4
+        willHit = False #1
+        relativeMonsterPos = False #4
+        nearbyWalls = False #4
+        playerPos = True #2
+        monsterPos = True #2
 
         state = []
 
@@ -114,6 +116,15 @@ class Agent:
                 state.append(1)
             else:
                 state.append(0)
+
+        if(playerPos):
+            state.append(g.player.x)
+            state.append(g.player.y)
+
+        if(monsterPos):
+            state.append(g.enemy.x)
+            state.append(g.enemy.y)
+
 
         return np.array(state, dtype=int)
 

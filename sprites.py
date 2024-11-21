@@ -234,7 +234,13 @@ class Attack(pygame.sprite.Sprite):
 
     def collide(self):
         hits = pygame.sprite.spritecollide(self, self.game.enemies, False)
+
         reward = 0
+        for enemy in self.game.enemies:
+            if((self.x + self.dx < enemy.x < self.x) or (self.x < enemy.x < self.x + self.dx) or (self.y + self.dy < enemy.y < self.y) or (self.y < enemy.y < self.y + self.dy)):
+                reward += enemy.take_damage(DAMAGE_VAL)
+                self.kill()
+
         if hits:
             # Handle what happens when the projectile hits an enemy
             for enemy in hits:
@@ -242,8 +248,6 @@ class Attack(pygame.sprite.Sprite):
                 reward += enemy.take_damage(DAMAGE_VAL)  # Example action: remove the enemy
 
         return reward
-
-
 
 '''
 Shawcode. “Pygame RPG Tutorial #1 - Pygame Tutorial.” 
