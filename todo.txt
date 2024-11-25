@@ -1,0 +1,26 @@
+ROADMAP THANKSGIVING BREAK
+* Monday 25th: brainstorming solutions, planning other levels while testing.
+* Tuesday 26th: finish all levels tuesday.
+* Wednesday 27th: put everything together
+
+ROADMAP LAST WEEK OF CLASSES.
+* Tuesday 3rd: last time working on code.
+* Wednesday 4th: work on final report
+* Thursday 5th: finish final report + make slides.
+
+ROADMAP FINALS WEEK:
+* Tuesday 10th:
+* Wednesday 11th: Work on script for final presentation
+
+=========================================================================================
+Things to try:
+
+1. Make batch size bigger 1000 --> 10,000
+2. Turn on wall states
+3. try 1 and 2 together
+4. "dy,dx" distance between player and monster
+5. distance to monster
+
+learning rate ?
+decrease randomness ?
+double epsilon and double random random ?

@@ -1,0 +1,29 @@
+
+Level 0 --> dummy (the one we have already)
+Level 1 --> monster chases and shoots.
+Level 2 --> monster moves randomly and shoots a circle of bullets.
+Level 3 --> monster flees and shoots.
+
+
+* New boss enemy(s)
+    * Sentry
+        * Stationary, targets player
+    * Chaser
+        * Chases player, targets player
+    * Drunkard
+        * Moves randomly, spread of projectiles
+    * Runner
+        * Moves away from player, targets player
+* SCREAM
+
+
+ Different ideas:
+ Idea 1: each iteration contains levels 0 to 3
+
+ Idea 2: one model per level. (this shows agent can succeed in different environments.
+
+ Idea 3:
+
+ For going through the levels:
+ do if statements calling create tile map with different enemies and delete the last enemy.
+

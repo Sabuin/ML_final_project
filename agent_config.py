@@ -14,6 +14,8 @@ SCORE = 0
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
 LR = 0.00000001 #learning rate
+RAND_MULT = 1.5
 
 
-STATE_COUNT = 8 #State size
+
+STATE_COUNT = 14 #State size

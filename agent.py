@@ -1,3 +1,5 @@
+from typing import final
+
 import config
 import game
 import agent_config
@@ -5,6 +7,7 @@ import torch #pytorch
 import random
 import numpy as np #numpy
 
+from agent_config import RAND_MULT
 from config import WIN_HEIGHT, WIN_WIDTH
 from model import Linear_QNet, QTrainer
 from collections import deque #data structure to store memory
@@ -27,15 +30,21 @@ class Agent:
         willHit True/False
         Monster up/down/left/right
         nearbyWalls up/down/left/right
+        playerPos val
+        monsterPos val
+        dydx val x2
+        distance2Sasha val
         '''
 
         #configs
         facing = True #4
         willHit = False #1
         relativeMonsterPos = False #4
-        nearbyWalls = False #4
+        nearbyWalls = True #4
         playerPos = True #2
         monsterPos = True #2
+        dydx = True #2
+        distance2Sasha = False #1
 
         state = []
 
@@ -125,6 +134,16 @@ class Agent:
             state.append(g.enemy.x)
             state.append(g.enemy.y)
 
+        if(dydx):
+            state.append(g.player.x - g.enemy.x)
+            state.append(g.player.y - g.enemy.y)
+
+        if(distance2Sasha):
+            val = g.player.x ** 2 + g.player.y ** 2
+            val = val ** .5
+            state.append(val)
+
+
 
         return np.array(state, dtype=int)
 
@@ -146,10 +165,13 @@ class Agent:
         self.trainer.train_step(state, action, reward, next_state, done)
 
     def get_action(self, state):
-        self.epsilon = 80 - self.n_games
+        self.epsilon= 80*RAND_MULT - self.n_games #80 - self.n_games
         final_move = [0, 0, 0, 0, 0]
 
-        if random.randint(0, 200) < self.epsilon:
+        if random.randint(0, 100) < 10:
+            move = random.randint(0, 4)
+            final_move[move] = 1
+        elif random.randint(0, 100*RAND_MULT) < self.epsilon: #change b=100 to 200
             move = random.randint(0, 4)
             final_move[move] = 1
         else:
@@ -183,7 +205,6 @@ def train():
 
         state_old = agent.get_state(g)
         final_move = agent.get_action(state_old)
-        action_count += 1
         reward, done = g.events(final_move)
         state_new = agent.get_state(g)
         agent.train_short_memory(state_old, final_move, reward, state_new, done)
@@ -198,7 +219,7 @@ def train():
             agent.train_long_memory()
 
            # print('Game', agent.n_games, 'Score:', score)
-            print ("" + str(score) + ", " + str(action_count) + " actions")
+            print(str(score))
 
             plot_scores.append(score)
             total_score += score
@@ -207,8 +228,6 @@ def train():
             plotGraph(plot_scores)
 
             score = 0
-            action_count = 0
-
 
 
 if __name__ == "__main__":

@@ -5,22 +5,23 @@ import math
 import random
 import time
 
+
 class Player(pygame.sprite.Sprite):
-    def __init__(self,game,x,y):
+    def __init__(self, game, x, y):
         self.game = game
         self._layer = PLAYER_LAYER
         self.groups = self.game.all_sprites
-        pygame.sprite.Sprite.__init__(self,self.groups)
+        pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.width = TILESIZE
         self.height = TILESIZE
 
-        self.image = pygame.Surface([self.width, self.height]) #how it looks
+        self.image = pygame.Surface([self.width, self.height])  # how it looks
         self.image.fill(PINK)
 
-        self.rect = self.image.get_rect() #the hitbox
+        self.rect = self.image.get_rect()  # the hitbox
         self.rect.x = self.x
         self.rect.y = self.y
 
@@ -33,7 +34,7 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.movement()
-        #self.collide_enemies()
+        # self.collide_enemies()
 
         self.rect.x += self.x_change
         self.collide_blocks('x')
@@ -41,14 +42,14 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.y_change
         self.collide_blocks('y')
 
-        #temporary variables
+        # temporary variables
         self.x_change = 0
         self.y_change = 0
 
     def movement(self):
         pass
 
-    def collide_blocks(self,direction):
+    def collide_blocks(self, direction):
         if direction == "x":
             hits = pygame.sprite.spritecollide(self, self.game.blocks, False)
             if hits:
@@ -64,7 +65,7 @@ class Player(pygame.sprite.Sprite):
                     self.rect.y = hits[0].rect.top - self.rect.height
                 if self.y_change < 0:
                     self.rect.y = hits[0].rect.bottom
-    
+
     # def collide_enemies(self):
     #    hits = pygame.sprite.spritecollide(self,self.game.enemies,False)
     #    if hits:
@@ -80,12 +81,13 @@ class Player(pygame.sprite.Sprite):
             self.kill()
             self.game.playing = False
 
+
 class Block(pygame.sprite.Sprite):
-    def __init__(self,game,x,y):
+    def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
         self.groups = self.game.all_sprites, self.game.blocks
-        pygame.sprite.Sprite.__init__(self,self.groups)
+        pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
         self.y = y * TILESIZE
@@ -98,6 +100,7 @@ class Block(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
@@ -105,12 +108,13 @@ class Enemy(pygame.sprite.Sprite):
         self.groups = self.game.all_sprites, self.game.enemies
         pygame.sprite.Sprite.__init__(self, self.groups)
 
-        self.rect = pygame.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
+        self.rect = pygame.Rect(x * TILESIZE, y * TILESIZE, TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE)
         self.image = pygame.Surface((TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE))
         self.image.fill(GREEN)
 
         self.x = x
         self.y = y
+
 
         self.x_change = 0
         self.y_change = 0
@@ -122,7 +126,7 @@ class Enemy(pygame.sprite.Sprite):
         self.hp = ENEMY_HP
 
     def update(self):
-       # self.move()
+        # self.move()
 
         # Check for collisions with blocks
         self.collide_blocks('x')
@@ -194,13 +198,14 @@ class Enemy(pygame.sprite.Sprite):
 
     def take_damage(self, damage):
         self.hp -= damage
-        if(self.hp <= 0):
+        if (self.hp <= 0):
             self.kill()
             self.game.playing = False
             return agent_config.MONSTER_KILLED
         else:
             return agent_config.MONSTER_HIT
-           
+
+
 class Attack(pygame.sprite.Sprite):
     def __init__(self, game, x, y, angle):
         self.game = game
@@ -231,15 +236,14 @@ class Attack(pygame.sprite.Sprite):
         self.rect.y += self.dy
         return self.collide()
 
-
     def collide(self):
         hits = pygame.sprite.spritecollide(self, self.game.enemies, False)
 
         reward = 0
-        for enemy in self.game.enemies:
-            if((self.x + self.dx < enemy.x < self.x) or (self.x < enemy.x < self.x + self.dx) or (self.y + self.dy < enemy.y < self.y) or (self.y < enemy.y < self.y + self.dy)):
-                reward += enemy.take_damage(DAMAGE_VAL)
-                self.kill()
+        # for enemy in self.game.enemies:
+        #     if ((self.rect.x + self.dx < enemy.x < self.rect.x) or (self.rect.x < enemy.x < self.rect.x + self.dx) or (self.rect.y + self.dy < enemy.y < self.rect.y) or (self.rect.y < enemy.y < self.rect.y + self.dy)):
+        #         reward += enemy.take_damage(DAMAGE_VAL)
+        #         self.kill()
 
         if hits:
             # Handle what happens when the projectile hits an enemy
@@ -249,6 +253,182 @@ class Attack(pygame.sprite.Sprite):
 
         return reward
 
+class Chaser(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = ENEMY_LAYER
+        self.groups = self.game.all_sprites, self.game.enemies
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.rect = pygame.Rect(x * TILESIZE, y * TILESIZE, TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE)
+        self.image = pygame.Surface((TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE))
+        self.image.fill(GREEN)
+
+        self.x = x
+        self.y = y
+
+        self.dx = ENEMY_SPEED
+        self.dy = ENEMY_SPEED
+
+        self.x_change = 0
+        self.y_change = 0
+        self.change_direction_time = random.uniform(1, 3)
+        self.last_direction_change = time.time()
+
+        self.hp = ENEMY_HP
+
+    def update(self, game):
+        if(game.player.x < self.x):
+            self.x -= self.dx
+        elif(game.player.x > self.x):
+            self.x += self.dx
+
+        if(game.player.y < self.y):
+            self.y -= self.dy
+        elif(game.player.y > self.y):
+            self.y += self.dy
+
+    def collide(self, game):
+        if(self.x < 0):
+            self.x = 0
+
+        if(self.x + self.rect.width > WIN_WIDTH):
+            self.x = WIN_WIDTH - self.rect.width
+
+        if(self.y < 0):
+            self.y = 0
+
+        if(self.y + self.rect.height > WIN_HEIGHT):
+            self.y = WIN_HEIGHT - self.rect.height
+
+    def take_damage(self, damage):
+        self.hp -= damage
+        if (self.hp <= 0):
+            self.kill()
+            self.game.playing = False
+            return agent_config.MONSTER_KILLED
+        else:
+            return agent_config.MONSTER_HIT
+
+class drunkard(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = ENEMY_LAYER
+        self.groups = self.game.all_sprites, self.game.enemies
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.rect = pygame.Rect(x * TILESIZE, y * TILESIZE, TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE)
+        self.image = pygame.Surface((TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE))
+        self.image.fill(GREEN)
+
+        self.x = x
+        self.y = y
+
+        self.dx = ENEMY_SPEED
+        self.dy = ENEMY_SPEED
+
+        self.x_change = 0
+        self.y_change = 0
+        self.change_direction_time = random.uniform(1, 3)
+        self.last_direction_change = time.time()
+
+        self.hp = ENEMY_HP
+
+    def update(self, game):
+        targetX = random.randint(0, WIN_WIDTH - self.rect.width)
+        targetY = random.randint(0, WIN_HEIGHT - self.rect.height)
+
+        if(self.x < targetX):
+            self.x += self.dx
+        elif(self.x > targetX):
+            self.x -= self.dx
+
+        if(self.y < targetY):
+            self.y += self.dy
+        elif(self.y > targetY):
+            self.y -= self.dy
+
+    def collide(self, game):
+        if (self.x < 0):
+            self.x = 0
+
+        if (self.x + self.rect.width > WIN_WIDTH):
+            self.x = WIN_WIDTH - self.rect.width
+
+        if (self.y < 0):
+            self.y = 0
+
+        if (self.y + self.rect.height > WIN_HEIGHT):
+            self.y = WIN_HEIGHT - self.rect.height
+
+    def take_damage(self, damage):
+        self.hp -= damage
+        if (self.hp <= 0):
+            self.kill()
+            self.game.playing = False
+            return agent_config.MONSTER_KILLED
+        else:
+            return agent_config.MONSTER_HIT
+
+class sniper(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = ENEMY_LAYER
+        self.groups = self.game.all_sprites, self.game.enemies
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.rect = pygame.Rect(x * TILESIZE, y * TILESIZE, TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE)
+        self.image = pygame.Surface((TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE))
+        self.image.fill(GREEN)
+
+        self.x = x
+        self.y = y
+
+        self.dx = ENEMY_SPEED
+        self.dy = ENEMY_SPEED
+
+        self.x_change = 0
+        self.y_change = 0
+        self.change_direction_time = random.uniform(1, 3)
+        self.last_direction_change = time.time()
+
+        self.hp = ENEMY_HP
+
+    def update(self, game):
+        if(game.player.x < WIN_WIDTH / 2):
+            self.x += self.dx
+        elif(game.player.x > WIN_WIDTH / 2):
+            self.x -= self.dx
+
+        if(game.player.y < WIN_HEIGHT / 2):
+            self.y += self.dy
+        elif(game.player.y > WIN_HEIGHT / 2):
+            self.y -= self.dy
+
+    def collide(self, game):
+        if(self.x < 0):
+            self.x = 0
+
+        if(self.x + self.rect.width > WIN_WIDTH):
+            self.x = WIN_WIDTH - self.rect.width
+
+        if(self.y < 0):
+            self.y = 0
+
+        if(self.y + self.rect.height > WIN_HEIGHT):
+            self.y = WIN_HEIGHT - self.rect.height
+
+    def take_damage(self, damage):
+        self.hp -= damage
+        if (self.hp <= 0):
+            self.kill()
+            self.game.playing = False
+            return agent_config.MONSTER_KILLED
+        else:
+            return agent_config.MONSTER_HIT
+
+
+
 '''
 Shawcode. “Pygame RPG Tutorial #1 - Pygame Tutorial.” 
 YouTube, 21 Feb. 2021, youtu.be/crUF36OkGDw?si=g54rCG25-wNusCUJ. 
@@ -256,4 +436,3 @@ Accessed 27 Oct. 2024.
 
 Note: resource used to learn how to use pygame, but this is an original file made by us. 
 '''
-
