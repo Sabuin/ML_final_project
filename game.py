@@ -6,6 +6,8 @@ from sprites import *
 from config import *
 import sys
 import time
+import numpy as np
+import math
 
 def max(val1, val2):
    if(val1 > val2):
@@ -22,13 +24,15 @@ class Game:
 
 
    def createTilemap(self):
-
       for i, row in enumerate(tilemap):
          for j, column in enumerate(row):
             if column == "W":
                self.block = Block(self,j,i)
             if column == "P":
+               if(self.level != 0):
+                  self.players.remove(self.player)
                self.player = Player(self, j, i) #(self, x_axis, y_axis)
+               self.players.add(self.player)
             if column == "E":
                if self.level == 0:
                   self.enemy = Enemy(self, j, i) #(self, x_axis, y_axis)
@@ -55,18 +59,22 @@ class Game:
    def new(self):
       self.playing = True
       self.all_sprites = pygame.sprite.LayeredUpdates() #object contains all sprites in the game
+      self.players = pygame.sprite.LayeredUpdates()
       self.blocks = pygame.sprite.LayeredUpdates()
       self.enemies = pygame.sprite.LayeredUpdates()
       self.attacks = pygame.sprite.LayeredUpdates()
       self.projectiles = pygame.sprite.LayeredUpdates()
+      self.enemyProjectiles = pygame.sprite.LayeredUpdates()
 
+      self.level = 0
       self.createTilemap()
 
       self.score = 0
 
       self.fireTime = 0
+      self.enemyFiretime = 0
       self.duration = 0
-      self.level = 0
+
 
    def agent_move(self, action):
       if action[0]:
@@ -111,13 +119,14 @@ class Game:
       '''
       Rewards we have:
       * If monster hit: +1
-      * If monster kill: +2
+      * If monster kill: 0
       *
       * If idle: -.0001
       * If shoots in right direction: +.5
 
       :return:
       '''
+
       reward = 0
       self.player.update()
       self.enemy.update(self)
@@ -127,6 +136,54 @@ class Game:
          if(value != None):
             reward += value
 
+      for bullet in self.enemyProjectiles:
+         value = bullet.update()
+         if(value != None):
+             reward += value
+
+      if(self.enemyFiretime <= 0):
+         bulletX = self.enemy.rect.x
+         bulletY = self.enemy.rect.y
+         if(self.level == 1):
+            if(self.player.rect.y < self.enemy.rect.y):
+               projectile = enemyAttack(self, bulletX, bulletY, 90)
+            elif(self.player.rect.y > self.enemy.rect.y):
+               projectile = enemyAttack(self, bulletX, bulletY, 270)
+            elif(self.player.rect.x < self.enemy.rect.x):
+               projectile = enemyAttack(self, bulletX, bulletY, 180)
+            else:
+               projectile = enemyAttack(self, bulletX, bulletY, 0)
+            self.enemyProjectiles.add(projectile)
+
+         elif(self.level == 2):
+            offset = 15
+            projectile = enemyAttack(self, bulletX, bulletY, 0 + offset)
+            self.enemyProjectiles.add(projectile)
+            projectile = enemyAttack(self, bulletX, bulletY, 45 + offset)
+            self.enemyProjectiles.add(projectile)
+            projectile = enemyAttack(self, bulletX, bulletY, 90 + offset)
+            self.enemyProjectiles.add(projectile)
+            projectile = enemyAttack(self, bulletX, bulletY, 135 + offset)
+            self.enemyProjectiles.add(projectile)
+            projectile = enemyAttack(self, bulletX, bulletY, 180 + offset)
+            self.enemyProjectiles.add(projectile)
+            projectile = enemyAttack(self, bulletX, bulletY, 225 + offset)
+            self.enemyProjectiles.add(projectile)
+            projectile = enemyAttack(self, bulletX, bulletY, 270 + offset)
+            self.enemyProjectiles.add(projectile)
+            projectile = enemyAttack(self, bulletX, bulletY, 315 + offset)
+            self.enemyProjectiles.add(projectile)
+
+         elif(self.level == 3):
+            xDif = self.player.rect.x - self.enemy.rect.x
+            yDif = self.enemy.rect.y - self.player.rect.y
+            angle = math.atan2(yDif, xDif) * 180 / math.pi
+            projectile = enemyAttack(self, bulletX, bulletY, angle)
+            self.enemyProjectiles.add(projectile)
+
+         self.enemyFiretime = ENEMY_FIRE_DELAY * self.level
+      elif(self.enemyFiretime > 0):
+         self.enemyFiretime -= 1
 
          # if(bullet.angle == 90 and self.enemy.y < self.player.y):
          #    reward += agent_config.NEAR_HIT
@@ -152,9 +209,9 @@ class Game:
 
    def events(self, action):
       #Game loop events
-      for event in pygame.event.get():
-         if event.type == pygame.QUIT:
-            self.playing = False
+      # for event in pygame.event.get():
+      #    if event.type == pygame.QUIT:
+      #       self.playing = False
 
       reward = self.update()
       self.draw()
@@ -170,8 +227,6 @@ class Game:
       for bullet in self.projectiles:
          if(bullet.x > WIN_WIDTH or bullet.x < 0 or bullet.y > WIN_HEIGHT or bullet.y < 0):
             bullet.kill()
-
-
 
       return reward, not self.playing
 

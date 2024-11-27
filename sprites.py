@@ -33,7 +33,6 @@ class Player(pygame.sprite.Sprite):
         self.hp = PLAYER_HP
 
     def update(self):
-        self.movement()
         # self.collide_enemies()
 
         self.rect.x += self.x_change
@@ -45,9 +44,6 @@ class Player(pygame.sprite.Sprite):
         # temporary variables
         self.x_change = 0
         self.y_change = 0
-
-    def movement(self):
-        pass
 
     def collide_blocks(self, direction):
         if direction == "x":
@@ -74,13 +70,15 @@ class Player(pygame.sprite.Sprite):
 
     def take_damage(self, damage):
         self.hp -= damage
-        agent_config.SCORE += agent_config.PLAYER_HIT
+        # agent_config.SCORE += agent_config.PLAYER_HIT
 
         if self.hp <= 0:
-            agent_config.SCORE += agent_config.PLAYER_KILLED
-            self.kill()
             self.game.playing = False
-
+            # agent_config.SCORE += agent_config.PLAYER_KILLED
+            self.kill()
+            return agent_config.PLAYER_KILLED
+        else:
+            return agent_config.PLAYER_HIT
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -309,9 +307,7 @@ class Chaser(pygame.sprite.Sprite):
         if (self.hp <= 0):
             self.kill()
             self.game.level = 2
-
             self.game.player.kill()
-
             self.game.createTilemap()
             return agent_config.MONSTER_KILLED
         else:
@@ -372,9 +368,7 @@ class Drunkard(pygame.sprite.Sprite):
         if (self.hp <= 0):
             self.kill()
             self.game.level = 3
-
             self.game.player.kill()
-
             self.game.createTilemap()
             return agent_config.MONSTER_KILLED
         else:
@@ -459,8 +453,8 @@ class enemyAttack(pygame.sprite.Sprite):
         # Store the angle and calculate the velocity components
 
         self.angle = angle
-        self.dx = PROJECTILE_SPEED * math.cos(math.radians(self.angle))
-        self.dy = -PROJECTILE_SPEED * math.sin(math.radians(self.angle))  # Negative for upward movement
+        self.dx = ENEMY_PROJECTILE_SPEED * math.cos(math.radians(self.angle))
+        self.dy = -ENEMY_PROJECTILE_SPEED * math.sin(math.radians(self.angle))  # Negative for upward movement
 
     def update(self):
         self.rect.x += self.dx
@@ -468,7 +462,7 @@ class enemyAttack(pygame.sprite.Sprite):
         return self.collide()
 
     def collide(self):
-        hits = pygame.sprite.spritecollide(self, self.game.player, False)
+        hits = pygame.sprite.spritecollide(self, self.game.players, False)
 
         reward = 0
         # for enemy in self.game.enemies:

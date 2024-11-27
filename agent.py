@@ -1,3 +1,5 @@
+from distutils.command.bdist import bdist
+from operator import truediv
 from typing import final
 
 import config
@@ -45,6 +47,7 @@ class Agent:
         monsterPos = True #2
         dydx = True #2
         distance2Monster = True #1
+        bulletNearby = True #4
 
         state = []
 
@@ -71,8 +74,8 @@ class Agent:
                 state.append(0)
 
         if(willHit):
-            inLineX = (g.enemy.x <= g.player.x <= g.enemy.x + config.ENEMY_SIZE)
-            inLineY = (g.enemy.y <= g.player.y <= g.enemy.y + config.ENEMY_SIZE)
+            inLineX = (g.enemy.rect.x <= g.player.rect.x <= g.enemy.rect.x + config.ENEMY_SIZE)
+            inLineY = (g.enemy.rect.y <= g.player.rect.y <= g.enemy.rect.y + config.ENEMY_SIZE)
             if((g.player.facing == "up" and inLineX and g.enemy.y < g.player.y) or
                (g.player.facing == "down" and inLineX and g.enemy.y > g.player.y) or
                (g.player.facing == "right" and inLineY and g.enemy.x > g.player.x) or
@@ -84,65 +87,102 @@ class Agent:
 
         #state relative monster position
         if(relativeMonsterPos):
-            if(g.player.y > g.enemy.y):
+            if(g.player.rect.y > g.enemy.rect.y):
                 state.append(1)
             else:
                 state.append(0)
 
-            if(g.player.y < g.enemy.y):
+            if(g.player.rect.y < g.enemy.rect.y):
                 state.append(1)
             else:
                 state.append(0)
 
-            if(g.player.x > g.enemy.x):
+            if(g.player.rect.x > g.enemy.rect.x):
                 state.append(1)
             else:
                 state.append(0)
 
-            if (g.player.x < g.enemy.x):
+            if (g.player.rect.x < g.enemy.rect.x):
                 state.append(1)
             else:
                 state.append(0)
 
         margin = 10
         if(nearbyWalls):
-            if(g.player.y < margin):
+            if(g.player.rect.y < margin):
                 state.append(1)
             else:
                 state.append(0)
 
-            if(g.player.y > WIN_HEIGHT - margin):
+            if(g.player.rect.y > WIN_HEIGHT - margin):
                 state.append(1)
             else:
                 state.append(0)
 
-            if(g.player.x < margin):
+            if(g.player.rect.x < margin):
                 state.append(1)
             else:
                 state.append(0)
 
-            if(g.player.x > WIN_WIDTH - margin):
+            if(g.player.rect.x > WIN_WIDTH - margin):
                 state.append(1)
             else:
                 state.append(0)
 
         if(playerPos):
-            state.append(g.player.x)
-            state.append(g.player.y)
+            state.append(g.player.rect.x)
+            state.append(g.player.rect.y)
 
         if(monsterPos):
-            state.append(g.enemy.x)
-            state.append(g.enemy.y)
+            state.append(g.enemy.rect.x)
+            state.append(g.enemy.rect.y)
 
         if(dydx):
-            state.append(g.player.x - g.enemy.x)
-            state.append(g.player.y - g.enemy.y)
+            state.append(g.player.rect.x - g.enemy.rect.x)
+            state.append(g.player.rect.y - g.enemy.rect.y)
 
         if(distance2Monster):
-            val = g.player.x ** 2 + g.player.y ** 2
+            val = g.player.rect.x ** 2 + g.player.rect.y ** 2
             val = val ** .5
             state.append(val)
 
+        if(bulletNearby):
+            bRight = False
+            bLeft = False
+            bDown = False
+            bUp = False
+
+            for bullet in g.enemyProjectiles:
+                xDif = bullet.rect.x - g.player.rect.x
+                yDif = bullet.rect.y - g.player.rect.y
+                if(xDif < agent_config.DETECT_RADIUS):
+                    bRight = True
+                if(-agent_config.DETECT_RADIUS < xDif):
+                    bLeft = True
+                if(yDif < agent_config.DETECT_RADIUS):
+                    bDown = True
+                if(-agent_config.DETECT_RADIUS < yDif):
+                    bUp = True
+
+            if(bRight):
+                state.append(1)
+            else:
+                state.append(0)
+
+            if(bLeft):
+                state.append(1)
+            else:
+                state.append(0)
+
+            if(bDown):
+                state.append(1)
+            else:
+                state.append(0)
+
+            if(bUp):
+                state.append(1)
+            else:
+                state.append(0)
 
 
         return np.array(state, dtype=int)

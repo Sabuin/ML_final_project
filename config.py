@@ -1,23 +1,27 @@
 import random
 import math
 
-WIN_WIDTH = 640
-WIN_HEIGHT = 480
-FPS = 60
 TILESIZE = 32
+WIN_WIDTH = TILESIZE * 30
+WIN_HEIGHT = TILESIZE * 20
+FPS = 60
+
 
 PLAYER_LAYER = 4
 BLOCK_LAYER = 2
 GROUND_LAYER = 1
 ENEMY_LAYER = 3
+ENEMY_PROJECTILE_SPEED = 1
 PROJECTILE_LAYER = 5
 
-PLAYER_SPEED = 5
+PLAYER_SPEED = 6
 PLAYER_HP = 3
 
 
 ENEMY_SPEED = 1
 DRUNKARD_SPEED = 2
+
+ENEMY_FIRE_DELAY = 100
 
 ENEMY_HP = 3
 ENEMY_SIZE = 1.5
@@ -42,21 +46,28 @@ ORANGE = (255,165,0)
 GREY = (128,128,128)
 
 tilemap = [
-	'WWWWWWWWWWWWWWWWWWWW',
-	'W..................W',
-	'W..................W',
-	'W..................W',
-	'W.........E........W',
-	'W..................W',
-	'W..................W',
-	'W..................W',
-	'W.........P........W',
-	'W..................W',
-	'W..................W',
-	'W..................W',
-	'W..................W',
-	'W..................W',
-	'WWWWWWWWWWWWWWWWWWWW',
+	'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W.............E..............W',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W............................W',
+	'W.............P..............W',
+	'W............................W',
+	'W............................W',
+	'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW',
+
+
 
 ] #The W represents walls, dots represent nothing there, P is where the player appears
 
