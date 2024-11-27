@@ -115,7 +115,6 @@ class Enemy(pygame.sprite.Sprite):
         self.x = x
         self.y = y
 
-
         self.x_change = 0
         self.y_change = 0
         self.change_direction_time = random.uniform(1, 3)
@@ -125,7 +124,7 @@ class Enemy(pygame.sprite.Sprite):
 
         self.hp = ENEMY_HP
 
-    def update(self):
+    def update(self, game):
         # self.move()
 
         # Check for collisions with blocks
@@ -200,7 +199,11 @@ class Enemy(pygame.sprite.Sprite):
         self.hp -= damage
         if (self.hp <= 0):
             self.kill()
-            self.game.playing = False
+            self.game.level = 1
+
+            self.game.player.kill()
+
+            self.game.createTilemap()
             return agent_config.MONSTER_KILLED
         else:
             return agent_config.MONSTER_HIT
@@ -262,7 +265,7 @@ class Chaser(pygame.sprite.Sprite):
 
         self.rect = pygame.Rect(x * TILESIZE, y * TILESIZE, TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE)
         self.image = pygame.Surface((TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE))
-        self.image.fill(GREEN)
+        self.image.fill(ORANGE)
 
         self.x = x
         self.y = y
@@ -278,39 +281,43 @@ class Chaser(pygame.sprite.Sprite):
         self.hp = ENEMY_HP
 
     def update(self, game):
-        if(game.player.x < self.x):
-            self.x -= self.dx
-        elif(game.player.x > self.x):
-            self.x += self.dx
+        if(game.player.rect.x < self.rect.x):
+            self.rect.x -= ENEMY_SPEED
+        elif(game.player.rect.x > self.rect.x):
+            self.rect.x += ENEMY_SPEED
 
-        if(game.player.y < self.y):
-            self.y -= self.dy
-        elif(game.player.y > self.y):
-            self.y += self.dy
+        if(game.player.rect.y < self.rect.y):
+            self.rect.y -= ENEMY_SPEED
+        elif(game.player.rect.y > self.rect.y):
+            self.rect.y += ENEMY_SPEED
+        
+        self.collide()
 
-    def collide(self, game):
-        if(self.x < 0):
-            self.x = 0
-
-        if(self.x + self.rect.width > WIN_WIDTH):
-            self.x = WIN_WIDTH - self.rect.width
-
-        if(self.y < 0):
-            self.y = 0
-
-        if(self.y + self.rect.height > WIN_HEIGHT):
-            self.y = WIN_HEIGHT - self.rect.height
+    def collide(self):
+        if self.rect.x < (TILESIZE):
+            self.rect.x = TILESIZE
+        elif self.rect.x + self.rect.width > (WIN_WIDTH - TILESIZE):
+            self.rect.x = WIN_WIDTH - TILESIZE - self.rect.width
+        
+        if self.rect.y < (TILESIZE):
+            self.rect.y = TILESIZE
+        elif self.rect.y + self.rect.height > (WIN_HEIGHT - TILESIZE):
+            self.rect.y = WIN_HEIGHT - TILESIZE - self.rect.height
 
     def take_damage(self, damage):
         self.hp -= damage
         if (self.hp <= 0):
             self.kill()
-            self.game.playing = False
+            self.game.level = 2
+
+            self.game.player.kill()
+
+            self.game.createTilemap()
             return agent_config.MONSTER_KILLED
         else:
             return agent_config.MONSTER_HIT
 
-class drunkard(pygame.sprite.Sprite):
+class Drunkard(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = ENEMY_LAYER
@@ -319,7 +326,7 @@ class drunkard(pygame.sprite.Sprite):
 
         self.rect = pygame.Rect(x * TILESIZE, y * TILESIZE, TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE)
         self.image = pygame.Surface((TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE))
-        self.image.fill(GREEN)
+        self.image.fill(GREY)
 
         self.x = x
         self.y = y
@@ -338,39 +345,42 @@ class drunkard(pygame.sprite.Sprite):
         targetX = random.randint(0, WIN_WIDTH - self.rect.width)
         targetY = random.randint(0, WIN_HEIGHT - self.rect.height)
 
-        if(self.x < targetX):
-            self.x += self.dx
-        elif(self.x > targetX):
-            self.x -= self.dx
+        if(self.rect.x < targetX):
+            self.rect.x += DRUNKARD_SPEED
+        elif(self.rect.x > targetX):
+            self.rect.x -= DRUNKARD_SPEED
 
-        if(self.y < targetY):
-            self.y += self.dy
-        elif(self.y > targetY):
-            self.y -= self.dy
+        if(self.rect.y < targetY):
+            self.rect.y += DRUNKARD_SPEED
+        elif(self.rect.y > targetY):
+            self.rect.y -= DRUNKARD_SPEED
+        self.collide()
 
-    def collide(self, game):
-        if (self.x < 0):
-            self.x = 0
+    def collide(self):
+        if self.rect.x < (TILESIZE):
+            self.rect.x = TILESIZE
+        elif self.rect.x + self.rect.width > (WIN_WIDTH - TILESIZE):
+            self.rect.x = WIN_WIDTH - TILESIZE - self.rect.width
 
-        if (self.x + self.rect.width > WIN_WIDTH):
-            self.x = WIN_WIDTH - self.rect.width
-
-        if (self.y < 0):
-            self.y = 0
-
-        if (self.y + self.rect.height > WIN_HEIGHT):
-            self.y = WIN_HEIGHT - self.rect.height
+        if self.rect.y < (TILESIZE):
+            self.rect.y = TILESIZE
+        elif self.rect.y + self.rect.height > (WIN_HEIGHT - TILESIZE):
+            self.rect.y = WIN_HEIGHT - TILESIZE - self.rect.height
 
     def take_damage(self, damage):
         self.hp -= damage
         if (self.hp <= 0):
             self.kill()
-            self.game.playing = False
+            self.game.level = 3
+
+            self.game.player.kill()
+
+            self.game.createTilemap()
             return agent_config.MONSTER_KILLED
         else:
             return agent_config.MONSTER_HIT
 
-class sniper(pygame.sprite.Sprite):
+class Sniper(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = ENEMY_LAYER
@@ -379,7 +389,7 @@ class sniper(pygame.sprite.Sprite):
 
         self.rect = pygame.Rect(x * TILESIZE, y * TILESIZE, TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE)
         self.image = pygame.Surface((TILESIZE * ENEMY_SIZE, TILESIZE * ENEMY_SIZE))
-        self.image.fill(GREEN)
+        self.image.fill(PURPLE)
 
         self.x = x
         self.y = y
@@ -395,28 +405,28 @@ class sniper(pygame.sprite.Sprite):
         self.hp = ENEMY_HP
 
     def update(self, game):
-        if(game.player.x < WIN_WIDTH / 2):
-            self.x += self.dx
-        elif(game.player.x > WIN_WIDTH / 2):
-            self.x -= self.dx
+        if(game.player.rect.x < WIN_WIDTH / 2):
+            self.rect.x += ENEMY_SPEED
+        elif(game.player.rect.x > WIN_WIDTH / 2):
+            self.rect.x -= ENEMY_SPEED
 
-        if(game.player.y < WIN_HEIGHT / 2):
-            self.y += self.dy
-        elif(game.player.y > WIN_HEIGHT / 2):
-            self.y -= self.dy
+        if(game.player.rect.y < WIN_HEIGHT / 2):
+            self.rect.y += ENEMY_SPEED
+        elif(game.player.rect.y > WIN_HEIGHT / 2):
+            self.rect.y -= ENEMY_SPEED
 
-    def collide(self, game):
-        if(self.x < 0):
-            self.x = 0
+        self.collide()
 
-        if(self.x + self.rect.width > WIN_WIDTH):
-            self.x = WIN_WIDTH - self.rect.width
+    def collide(self):
+        if self.rect.x < (TILESIZE):
+            self.rect.x = TILESIZE
+        elif self.rect.x + self.rect.width > (WIN_WIDTH - TILESIZE):
+            self.rect.x = WIN_WIDTH - TILESIZE - self.rect.width
 
-        if(self.y < 0):
-            self.y = 0
-
-        if(self.y + self.rect.height > WIN_HEIGHT):
-            self.y = WIN_HEIGHT - self.rect.height
+        if self.rect.y < (TILESIZE):
+            self.rect.y = TILESIZE
+        elif self.rect.y + self.rect.height > (WIN_HEIGHT - TILESIZE):
+            self.rect.y = WIN_HEIGHT - TILESIZE - self.rect.height
 
     def take_damage(self, damage):
         self.hp -= damage
@@ -427,7 +437,52 @@ class sniper(pygame.sprite.Sprite):
         else:
             return agent_config.MONSTER_HIT
 
+class enemyAttack(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, angle):
+        self.game = game
+        self._layer = PROJECTILE_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
 
+        self.x = x
+        self.y = y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        self.image = pygame.Surface([10, 10])  # Size of the projectile
+        self.image.fill(RED)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        # Store the angle and calculate the velocity components
+
+        self.angle = angle
+        self.dx = PROJECTILE_SPEED * math.cos(math.radians(self.angle))
+        self.dy = -PROJECTILE_SPEED * math.sin(math.radians(self.angle))  # Negative for upward movement
+
+    def update(self):
+        self.rect.x += self.dx
+        self.rect.y += self.dy
+        return self.collide()
+
+    def collide(self):
+        hits = pygame.sprite.spritecollide(self, self.game.player, False)
+
+        reward = 0
+        # for enemy in self.game.enemies:
+        #     if ((self.rect.x + self.dx < enemy.x < self.rect.x) or (self.rect.x < enemy.x < self.rect.x + self.dx) or (self.rect.y + self.dy < enemy.y < self.rect.y) or (self.rect.y < enemy.y < self.rect.y + self.dy)):
+        #         reward += enemy.take_damage(DAMAGE_VAL)
+        #         self.kill()
+
+        if hits:
+            # Handle what happens when the projectile hits an enemy
+            for player in hits:
+                self.kill()
+                reward += player.take_damage(DAMAGE_VAL)  # Example action: remove the enemy
+
+        return reward
 
 '''
 Shawcode. “Pygame RPG Tutorial #1 - Pygame Tutorial.” 

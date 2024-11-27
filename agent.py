@@ -39,12 +39,12 @@ class Agent:
         #configs
         facing = True #4
         willHit = False #1
-        relativeMonsterPos = False #4
+        relativeMonsterPos = True #4
         nearbyWalls = True #4
         playerPos = True #2
         monsterPos = True #2
         dydx = True #2
-        distance2Sasha = False #1
+        distance2Monster = True #1
 
         state = []
 
@@ -138,7 +138,7 @@ class Agent:
             state.append(g.player.x - g.enemy.x)
             state.append(g.player.y - g.enemy.y)
 
-        if(distance2Sasha):
+        if(distance2Monster):
             val = g.player.x ** 2 + g.player.y ** 2
             val = val ** .5
             state.append(val)
@@ -168,7 +168,7 @@ class Agent:
         self.epsilon= 80*RAND_MULT - self.n_games #80 - self.n_games
         final_move = [0, 0, 0, 0, 0]
 
-        if random.randint(0, 100) < 10:
+        if random.randint(0, 100) < 1:
             move = random.randint(0, 4)
             final_move[move] = 1
         elif random.randint(0, 100*RAND_MULT) < self.epsilon: #change b=100 to 200
@@ -201,7 +201,7 @@ def train():
     i = 0
     action_count = 0
 
-    while(i < 100): #DON'T FORGET TO CHANGE
+    while(i < 160): #DON'T FORGET TO CHANGE
 
         state_old = agent.get_state(g)
         final_move = agent.get_action(state_old)

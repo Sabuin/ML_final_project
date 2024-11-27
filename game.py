@@ -18,9 +18,11 @@ class Game:
       pygame.init()
       self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
       #self.clock = pygame.time.Clock()
+      self.level = 0
 
 
    def createTilemap(self):
+
       for i, row in enumerate(tilemap):
          for j, column in enumerate(row):
             if column == "W":
@@ -28,7 +30,26 @@ class Game:
             if column == "P":
                self.player = Player(self, j, i) #(self, x_axis, y_axis)
             if column == "E":
-               self.enemy = Enemy(self, j, i) #(self, x_axis, y_axis)
+               if self.level == 0:
+                  self.enemy = Enemy(self, j, i) #(self, x_axis, y_axis)
+               elif self.level == 1:
+
+                  self.all_sprites.remove(self.enemy)
+                  self.enemies.remove(self.enemy)
+
+                  self.enemy = Chaser(self, j, i)
+               elif self.level == 2:
+
+                  self.all_sprites.remove(self.enemy)
+                  self.enemies.remove(self.enemy)
+
+                  self.enemy = Drunkard(self, j, i)
+               elif self.level == 3:
+
+                  self.all_sprites.remove(self.enemy)
+                  self.enemies.remove(self.enemy)
+
+                  self.enemy = Sniper(self, j, i)
             
 
    def new(self):
@@ -45,6 +66,7 @@ class Game:
 
       self.fireTime = 0
       self.duration = 0
+      self.level = 0
 
    def agent_move(self, action):
       if action[0]:
@@ -98,12 +120,14 @@ class Game:
       '''
       reward = 0
       self.player.update()
-      self.enemy.update()
+      self.enemy.update(self)
 
       for bullet in self.projectiles:
          value = bullet.update()
          if(value != None):
             reward += value
+
+
          # if(bullet.angle == 90 and self.enemy.y < self.player.y):
          #    reward += agent_config.NEAR_HIT
          # elif(bullet.angle == 0 and self.enemy.x > self.player.x):

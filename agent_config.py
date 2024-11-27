@@ -12,10 +12,10 @@ DURATION_MOD = 50000
 SCORE = 0
 
 MAX_MEMORY = 100_000
-BATCH_SIZE = 1000
-LR = 0.00000001 #learning rate
+BATCH_SIZE = 10000
+LR = 0.0000001 #learning rate
 RAND_MULT = 1.5
 
 
 
-STATE_COUNT = 14 #State size
+STATE_COUNT = 19 #State size
