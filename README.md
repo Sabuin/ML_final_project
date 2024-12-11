@@ -27,7 +27,7 @@ The agent receives a positive or negative reward (a penalty) based on their perf
 ### Results and Discussion
 The selection of hyperparameters are of great importance to every machine-learning model, but for our model we realized early on that these were crucial for success. We came to this discovery after countless experiments with combinations of hyperparameters. For example, by increasing the maximum batch size from 1000 to 1200 we would get drastically different results. Thus, for most of the duration of the project, we had to test many combinations of hyperparameters. Below is a table showing some of the combinations that we have used when we were running the model on the first level only.
 
-![graphs with different hyperparameter combinations](GRAPHS/Graphs2.png "Graph")
+![graphs with different hyperparameter combinations](https://github.com/Sabuin/ML_final_project/blob/d621b31b596a8582cc722d86fed6d7556e2468f3/GRAPHS/Graphs_2.png "Graph")
 
 Taking a quick glance at the graphs, they might seem to indicate that the model appears to be underperforming. Thus, we went through all of our program files to see if any bugs would explain our agent’s behaviour, but could not find any. Therefore, for subsequent runs, we decided to record the game states to see if we could identify what could be causing those results. Particularly, we paid close attention to our agent’s actions during the earlier iterations when randomness is high and the actions taken during the final iterations*. This choice was particularly useful because it showed us that in fact, our model was going in the right direction. We could see that in the last iterations, the agent knew exactly what it needed to do. Instead of randomly moving around the play area, it would directly follow the monster. This was particularly noticeable in the last level, where the monster shoots at the agent while trying to get as far away from it as possible. In the earlier iterations, it was elementary for the monster to escape the player, while in the last ones, we could see the agent actively following it. 
 
@@ -51,8 +51,43 @@ The topic of reinforcement deep learning brings great discussions about model op
 * Adjusting the exploration and exploitation time.
 * Continue our search for the best combinations of hyperparameters and states. 
 * Adjusting the neural network.
-* Considering different information about the environment that the agent can receive. 
+* Considering different information about the environment that the agent can receive.
 
+## BIBLIOGRAPHY 
+[1] R. Agarwal, "Complete Guide to the Adam Optimization Algorithm | Built In," Builtin.com, 13 Sept. 2023. [Online]. Available: https://builtin.com/machine-learning/adam-optimization. [Accessed: Oct. 27, 2024].
+
+[2] "Bellman Equation," GeeksforGeeks, 23 Sept. 2021. [Online]. Available: https://www.geeksforgeeks.org/bellman-equation/. [Accessed: Oct. 27, 2024].
+
+[3] M. Comi, "How to Teach AI to Play Games: Deep Reinforcement Learning," Medium, Towards Data Science, 15 Nov. 2018. [Online]. Available: https://towardsdatascience.com/how-to-teach-an-ai-to-play-games-deep-reinforcement-
+learning-28f9b920440a. [Accessed: Oct. 27, 2024].
+
+[4] "Deep Learning Tutorial," GeeksforGeeks, 10 Apr. 2023. [Online]. Available: https://www.geeksforgeeks.org/deep-learning-tutorial/. [Accessed: Oct. 27, 2024].
+
+[5] "Environments," TensorFlow, 2023. [Online]. Available: https://www.tensorflow.org/agents/tutorials/2_environments_tutorial. [Accessed: Sept. 26, 2024].
+
+[6] freeCodeCamp.org, "Python + PyTorch + Pygame Reinforcement Learning – Train an AI to Play Snake," YouTube, 25 Apr. 2022. [Online]. Available: https://youtu.be/L8ypSXwyBds?si=94UOpnWVmBMUwggG. [Accessed: Oct. 27, 2024].
+
+[7] "Implementing Deep QLearning Using Tensorflow," GeeksforGeeks, 14 June 2019. [Online]. Available: https://www.geeksforgeeks.org/implementing-deep-q-learning-using-tensorflow/. [Accessed: Oct. 27, 2024].
+
+[8] "Introduction to RL and Deep Q Networks | TensorFlow Agents," TensorFlow. [Online]. Available: https://www.tensorflow.org/agents/tutorials/0_intro_rl. [Accessed: Oct. 27, 2024].
+
+[9] "Introduction to Thompson Sampling | Reinforcement Learning," GeeksforGeeks, 22 Aug. 2019. [Online]. Available: https://www.geeksforgeeks.org/introduction-to-thompson-sampling-reinforcement-learning/. [Accessed: Oct. 27, 2024].
+
+[10] "Keras Documentation: Adam," Keras.io. [Online]. Available: https://keras.io/api/optimizers/adam/. [Accessed: Oct. 27, 2024].
+
+[11] "Markov Decision Process - GeeksforGeeks," GeeksforGeeks, 4 Jan. 2018. [Online]. Available: https://www.geeksforgeeks.org/markov-decision-process/. [Accessed: Oct. 27, 2024].
+
+[12] "Meta-Learning in Machine Learning," GeeksforGeeks, 18 May 2019. [Online]. Available: https://www.geeksforgeeks.org/meta-learning-in-machine-learning/. [Accessed: Oct. 27, 2024].
+
+[13] "ML | Reinforcement Learning Algorithm : Python Implementation Using Q-Learning," GeeksforGeeks, 30 May 2019. [Online]. Available: https://www.geeksforgeeks.org/ml-reinforcement-learning-algorithm-python-implementation-using-q-learning/. [Accessed: Oct. 27, 2024].
+
+[14] "Q-Learning in Python - GeeksforGeeks," GeeksforGeeks, 6 Feb. 2019. [Online]. Available: https://www.geeksforgeeks.org/q-learning-in-python/. [Accessed: Oct. 27, 2024].
+
+[15] Shawcode, "Pygame RPG Tutorial #1 - Pygame Tutorial," YouTube, 21 Feb. 2021. [Online]. Available: https://youtu.be/crUF36OkGDw?si=g54rCG25-wNusCUJ. [Accessed: Oct. 27, 2024].
+
+[16] "Torch.nn — PyTorch Master Documentation," Pytorch.org. [Online]. Available: https://pytorch.org/docs/stable/nn.html. [Accessed: Oct. 27, 2024].
+
+[17] "Understanding Reinforcement Learning In-Depth," GeeksforGeeks, 19 Feb. 2022. [Online]. Available: https://www.geeksforgeeks.org/understanding-reinforcement-learning-in-depth/. [Accessed: Oct. 27, 2024].
 
 
 
