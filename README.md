@@ -1,5 +1,6 @@
 # Beating the Game: The Power of Deep Reinforcement Learning
-## Sasha Jazmín Abuin and Brodie A. Duprey | CS 3540 - Machine learning final project, Fall 2024
+## Sasha Jazmín Abuin and Brodie A. Duprey
+### CS 3540 - Machine learning final project, Fall 2024
 
 ## Introduction
 Through machine learning, specifically deep reinforcement learning, we have created an agent that learns how to beat all of the levels of a game we have created through trial and error. By the final iterations, the agent is capable of learning its purpose, that is, to win the game by defeating all the enemies present in the game by adapting to unpredictable environments through experience.
