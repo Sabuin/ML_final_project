@@ -2,18 +2,21 @@ from distutils.command.bdist import bdist
 from operator import truediv
 from typing import final
 
+from fontTools.varLib.instancer import axisValuesFromAxisLimits
+
 import config
 import game
 import agent_config
 import torch #pytorch
 import random
 import numpy as np #numpy
+import math
 
 from agent_config import RAND_MULT
 from config import WIN_HEIGHT, WIN_WIDTH
 from model import Linear_QNet, QTrainer
 from collections import deque #data structure to store memory
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 
 class Agent:
     def __init__(self):
@@ -52,26 +55,35 @@ class Agent:
         state = []
 
         # player facings
-        if(facing):
-            if(g.player.facing == "up"):
-                state.append(1)
-            else:
-                state.append(0)
+        # if(facing):
+        #     if(g.player.facing == "up"):
+        #         state.append(1)
+        #     else:
+        #         state.append(0)
+        #
+        #     if (g.player.facing == "down"):
+        #         state.append(1)
+        #     else:
+        #         state.append(0)
+        #
+        #     if (g.player.facing == "left"):
+        #         state.append(1)
+        #     else:
+        #         state.append(0)
+        #
+        #     if (g.player.facing == "right"):
+        #         state.append(1)
+        #     else:
+        #         state.append(0)
 
-            if (g.player.facing == "down"):
-                state.append(1)
-            else:
-                state.append(0)
-
-            if (g.player.facing == "left"):
-                state.append(1)
-            else:
-                state.append(0)
-
-            if (g.player.facing == "right"):
-                state.append(1)
-            else:
-                state.append(0)
+        #delete later ----------
+        if (facing):
+            directions = ["up", "down", "left", "right"]
+            for direction in directions:
+                if g.player.facing == direction:
+                    state.append(1)
+                else:
+                    state.append(0)
 
         if(willHit):
             inLineX = (g.enemy.rect.x <= g.player.rect.x <= g.enemy.rect.x + config.ENEMY_SIZE)
@@ -138,13 +150,16 @@ class Agent:
             state.append(g.enemy.rect.y)
 
         if(dydx):
-            state.append(g.player.rect.x - g.enemy.rect.x)
-            state.append(g.player.rect.y - g.enemy.rect.y)
+            state.append((g.player.rect.x - g.enemy.rect.x))
+            state.append((g.player.rect.y - g.enemy.rect.y))
 
         if(distance2Monster):
-            val = g.player.rect.x ** 2 + g.player.rect.y ** 2
-            val = val ** .5
-            state.append(val)
+
+            # val = g.player.rect.x ** 2 + g.player.rect.y ** 2
+            # val = val ** .5
+            # val = val/((WIN_WIDTH ** 2 + WIN_HEIGHT ** 2) ** .5)
+
+            state.append(math.dist((g.player.rect.x, g.player.rect.y), (g.enemy.rect.x,g.enemy.rect.y)))
 
         if(bulletNearby):
             bRight = False
@@ -205,7 +220,7 @@ class Agent:
         self.trainer.train_step(state, action, reward, next_state, done)
 
     def get_action(self, state):
-        self.epsilon= 80*RAND_MULT - self.n_games #80 - self.n_games
+        self.epsilon= 80 * RAND_MULT - self.n_games #80 - self.n_games
         final_move = [0, 0, 0, 0, 0]
 
         if random.randint(0, 100) < 1:
@@ -222,15 +237,28 @@ class Agent:
 
         return final_move
 
-def plotGraph(yAxis):
-    xAxis = range(len(yAxis))
-    plot.scatter(xAxis, yAxis)
-    plot.show()
+def plotGraph(yAxis1, yAxis2):
+    xAxis = range(len(yAxis1))
+    fig, ax1 = plt.subplots()
+    ax1.set_xlabel("Game #")
+    ax1.set_ylabel("Reward (Purple)")
+    ax1.plot(xAxis, yAxis1, color="purple")
 
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Duration (Frames) (Pink)")
+    ax2.plot(xAxis, yAxis2, color="pink")
+
+    fig.tight_layout()
+    plt.show()
+
+def plotTimeVReward(time, reward):
+    plt.scatter(time, reward, color="blue")
+    plt.show()
 
 def train():
     plot_scores = []
     plot_mean_scores = []
+    plot_times = []
     total_score = 0
     record = 0
     agent = Agent()
@@ -238,10 +266,10 @@ def train():
     g.new()
 
     score = 0
+    duration = 0
     i = 0
-    action_count = 0
 
-    while(i < 160): #DON'T FORGET TO CHANGE
+    while(i < 200): #DON'T FORGET TO CHANGE
 
         state_old = agent.get_state(g)
         final_move = agent.get_action(state_old)
@@ -251,6 +279,7 @@ def train():
         agent.remember(state_old, final_move, reward, state_new, done)
 
         score += reward
+        duration += 1
 
         if done:
             i+=1
@@ -262,12 +291,15 @@ def train():
             print(str(score))
 
             plot_scores.append(score)
+            plot_times.append(duration)
             total_score += score
             mean_score = total_score / agent.n_games
             plot_mean_scores.append(mean_score)
-            plotGraph(plot_scores)
+            plotGraph(plot_mean_scores, plot_times)
+            #plotTimeVReward(plot_times, plot_scores)
 
             score = 0
+            duration = 0
 
 
 if __name__ == "__main__":

@@ -228,9 +228,9 @@ class Attack(pygame.sprite.Sprite):
 
         # Store the angle and calculate the velocity components
 
-        self.angle = angle
-        self.dx = PROJECTILE_SPEED * math.cos(math.radians(self.angle))
-        self.dy = -PROJECTILE_SPEED * math.sin(math.radians(self.angle))  # Negative for upward movement
+        self.angle = float(angle)
+        self.dx = float(PROJECTILE_SPEED) * math.cos(math.radians(self.angle))
+        self.dy = float(-PROJECTILE_SPEED) * math.sin(math.radians(self.angle))  # Negative for upward movement
 
     def update(self):
         self.rect.x += self.dx

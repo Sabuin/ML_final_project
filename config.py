@@ -14,8 +14,8 @@ ENEMY_LAYER = 3
 ENEMY_PROJECTILE_SPEED = 1
 PROJECTILE_LAYER = 5
 
-PLAYER_SPEED = 6
-PLAYER_HP = 3
+PLAYER_SPEED = 5
+PLAYER_HP = 6
 
 
 ENEMY_SPEED = 1
@@ -33,7 +33,7 @@ PROJECTILE_RADIUS = 5
 PROJECTILE_PER_SHOT = 1
 PROJECTILE_INTERVAL = 100 #meep
 PROJECTILE_COUNT = 5
-PROJECTILE_ANGLE = random.uniform(0, 2 * math.pi)
+PROJECTILE_ANGLE = random.uniform(0, 3 * math.pi)
 
 
 PINK = (255,204,229)
@@ -53,9 +53,9 @@ tilemap = [
 	'W............................W',
 	'W............................W',
 	'W............................W',
-	'W............................W',
-	'W............................W',
 	'W.............E..............W',
+	'W............................W',
+	'W............................W',
 	'W............................W',
 	'W............................W',
 	'W............................W',

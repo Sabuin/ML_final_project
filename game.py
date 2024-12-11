@@ -1,3 +1,5 @@
+from random import randint
+
 import pygame
 
 import agent_config
@@ -54,6 +56,8 @@ class Game:
                   self.enemies.remove(self.enemy)
 
                   self.enemy = Sniper(self, j, i)
+
+      self.duration = 0
             
 
    def new(self):
@@ -104,7 +108,7 @@ class Game:
             angle = 0
 
          if(self.fireTime < 0):
-            projectile = Attack(self, self.player.rect.x, self.player.rect.y, angle)
+            projectile = Attack(self, self.player.rect.x + self.player.rect.width/2, self.player.rect.y + self.player.rect.height/2, angle)
             self.projectiles.add(projectile)
             self.fireTime += config.PROJECTILE_INTERVAL
       # self.fireTime -= self.clock.get_time()
@@ -156,7 +160,7 @@ class Game:
             self.enemyProjectiles.add(projectile)
 
          elif(self.level == 2):
-            offset = 15
+            offset = randint(0,45)
             projectile = enemyAttack(self, bulletX, bulletY, 0 + offset)
             self.enemyProjectiles.add(projectile)
             projectile = enemyAttack(self, bulletX, bulletY, 45 + offset)

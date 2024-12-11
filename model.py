@@ -14,20 +14,25 @@ import os
 class Linear_QNet(nn.Module):
     def __init__(self, input_size, hidden_size, output_size): #building the input, hidden and output layer
         super().__init__()
+        # 1 input layer, 6 hidden layers, 1 output layer
         self.linear1 = nn.Linear(input_size, hidden_size)
         self.linear2 = nn.Linear(hidden_size, hidden_size)
         self.linear3 = nn.Linear(hidden_size, hidden_size)
         self.linear4 = nn.Linear(hidden_size, hidden_size)
         self.linear5 = nn.Linear(hidden_size, hidden_size)
-        self.linear6 = nn.Linear(hidden_size, output_size)
+        self.linear6 = nn.Linear(hidden_size, hidden_size)
+        self.linear7 = nn.Linear(hidden_size, hidden_size)
+        self.linear8 = nn.Linear(hidden_size, output_size)
 
-    def forward(self, x): #this is a feed-forward neural net
+    def forward(self, x):
         x = F.relu(self.linear1(x))
         x = F.relu(self.linear2(x))
         x = F.relu(self.linear3(x))
         x = F.relu(self.linear4(x))
         x = F.relu(self.linear5(x))
-        x = self.linear6(x)
+        x = F.relu(self.linear6(x))
+        x = F.relu(self.linear7(x))
+        x = self.linear8(x)
         return x
 
     def save(self, file_name='model.pth'): #saving the model
